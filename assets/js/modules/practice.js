@@ -1,4 +1,6 @@
 import * as PIXI from "pixi.js";
+import * as dat from 'dat.gui';
+
 import {Particle} from "./Particle";
 
 function wrapText(context, text, x, y, maxWidth, lineHeight) {
@@ -36,15 +38,16 @@ function drawCanvasWithSomeText(text, fz, lh, mWidth, xPos, yPos) {
     ctx.fillStyle = "#000000";
     ctx.fillRect(0,0,hiddenCanvasText.width, hiddenCanvasText.width);
     ctx.fillStyle = "#ffffff";
-    // ctx.textAlign = "center";
     wrapText(ctx, text, x, y, maxWidth, lineHeight);
 
     return hiddenCanvasText.toDataURL("image/png");
 }
 
-let imageURL = drawCanvasWithSomeText(text, 75, 80, (window.innerWidth - 100), 50, 80);
+let imageURL = drawCanvasWithSomeText(text, 75, 80, (window.innerWidth - 100), 10, Math.floor(window.innerHeight/2 - 40));
 
 export function practice() {
+
+    const gui = new dat.GUI();
 
     function resize(app) {
 
@@ -60,9 +63,11 @@ export function practice() {
 
             this.particleSize = 3;
             this.rows = Math.floor(window.innerHeight / this.particleSize);
+            // this.rows = 100;
             this.cols = Math.floor(window.innerWidth / this.particleSize);
             this.particles = [];
             // this.mouse = {x:0,y:0};
+            this.radius = 50;
 
 
             this.container = new PIXI.ParticleContainer(600000);
@@ -74,6 +79,12 @@ export function practice() {
 
             window.addEventListener('resize', () => {
                 resize(this.app);
+            });
+
+            window.addEventListener('mousewheel', (e) => {
+                if(e.wheelDelta > 0) {
+                    this.radius += 20;
+                }
             });
 
             this.animate();
@@ -105,7 +116,7 @@ export function practice() {
                         let y = j * this.particleSize;
 
                         if(hasFill(x, y, this.particleSize)) {
-                            let p = new Particle(x, y, resources.bunny.texture, this.particleSize);
+                            let p = new Particle(x, y, resources.bunny.texture, this.particleSize, this.radius);
 
                             this.particles.push(p);
                             this.container.addChild(p.sprite);
@@ -120,7 +131,7 @@ export function practice() {
                 this.mouse = this.app.renderer.plugins.interaction.mouse.global;
 
                 this.particles.forEach(p => {
-                    p.update(this.mouse);
+                    p.update(this.mouse, this.radius);
                 });
             });
         }
@@ -128,4 +139,5 @@ export function practice() {
 
     let PT = new ParticleText();
 
+    gui.add(PT, "radius", 10, 500);
 }

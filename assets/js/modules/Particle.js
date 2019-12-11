@@ -1,8 +1,7 @@
 import * as PIXI from "pixi.js";
 
-
 export class Particle {
-    constructor(x, y, texture, size) {
+    constructor(x, y, texture, size, radius) {
 
         this.x = x;
         this.y = y;
@@ -16,20 +15,22 @@ export class Particle {
         this.speedX = 0;
         this.speedY = 0;
 
-        this.radius = 100;
+        this.radius = radius;
 
         this.friction = 0.9;
 
-        this.gravity = 0.01;
+        this.gravity = 0.01 + Math.random()*0.4;
+
+        this.maxGravity = 0.05;
 
 
-
-
-        this.dirX = (Math.random() - 0.5) / 2 * 10;
-        this.dirY = (Math.random() - 0.5) / 2 * 10;
+        // window.addEventListener("scroll", (e) => {
+        //     console.log(wheelDelta);
+        // });
     }
 
-    update(mouse) {
+    update(mouse, newRadius) {
+        this.radius = newRadius;
         let distanceX = mouse.x - this.sprite.x;
         let distanceY = mouse.y - this.sprite.y;
 
@@ -41,8 +42,15 @@ export class Particle {
 
         //mouse interaction
         if(distance < this.radius) {
+            //decrease gravity
+            this.gravity *= this.friction;
+
             this.speedX -= normalX + 4*Math.random() - 2;
             this.speedY -= normalY + 4*Math.random() - 2;
+        } else {
+            //inertia formula
+            //increase gravity
+            this.gravity += 0.1*(this.maxGravity - this.gravity);
         }
 
         //back home

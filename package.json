@@ -46,6 +46,7 @@
     "npm": ">=4.1.2"
   },
   "dependencies": {
+    "dat.gui": "^0.7.6",
     "pixi.js": "^5.2.0"
   }
 }
